@@ -46,23 +46,12 @@ for k in $(seq 1 $clusters);
 do
 	for seed in $(seq 1 $repeats)
 	do
-		until [ -f $pop_dir/ngsadmix/$set_id.K$k.seed$seed.qopt ]
-		do
-			sleep 5m
-		done
-		
 		sbatch --account=nib00015 --output=$pop_dir/logFiles/print_likes.$set_id.oe $scripts_dir/best_likes.sh $pop_dir/ngsadmix/$set_id.K$k.seed$seed.log $like_file $k $seed
 	done
 done
 
 ## Plot results
 ind_file=$pop_dir/$set_id.txt # File with individual IDs in first columns and population assignments in second column
-
-until [[ $(cat $like_file | wc -l) == $(( $clusters*$repeats )) ]]
-do
-	sleep 5m
-done
-
 sbatch --account=nib00015 --output=$pop_dir/logFiles/plot_ngsadmix.$set_id.oe $scripts_dir/plot_ngsadmix.sh $scripts_dir $pop_dir/ngsadmix $like_file $ind_file $set_id
 
 #################################################################
@@ -106,7 +95,7 @@ mkdir -p $pop_dir/ibd/geneticDistances
 
 vcf_file=$PWORK/$set_id/vcf/$set_id.allScaffolds.snps.07filt.vcf
 ## Estimate genetic distance between individuals
-sbatch --wait --account=nib00015 --output=$pop_dir/logFiles/$set_id.vcfr.oe $scripts_dir/vcfr.sh $scripts_dir $vcf_file $pop_dir/ibd/geneticDistances/geneticDistances.csv
+sbatch --account=nib00015 --output=$pop_dir/logFiles/$set_id.vcfr.oe $scripts_dir/vcfr.sh $scripts_dir $vcf_file $pop_dir/ibd/geneticDistances/geneticDistances.csv
 
 ## Conduct Mantel tests and plot IBD
 geo_dist=$pop_dir/ibd/geo_dist.txt # Distance matrix with mean geographic distances between population pairs as estimated with Geographic Distance Matrix Generator v1.2.3 (https://biodiversityinformatics.amnh.org/open_source/gdmg/), with row and column names

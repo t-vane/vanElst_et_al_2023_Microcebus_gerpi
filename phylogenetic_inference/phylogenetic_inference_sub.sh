@@ -17,17 +17,17 @@ mkdir -p $phyl_dir/logFiles
 #################################################################
 ## Align loci with muscle and change headers to remove locus IDs (otherwise concatenation will not work)
 nt=64 # Number of loci processed in parallel
-jid1=$(sbatch --account=nib00015 --output=$alignment_dir/logFiles/alignment.oe $scripts_dir/alignment.sh $nt $locus_dir $alignment_dir)
+sbatch --account=nib00015 --output=$alignment_dir/logFiles/alignment.oe $scripts_dir/alignment.sh $nt $locus_dir $alignment_dir
 
 ## Calculate statistics for locus alignments
-sbatch --account=nib00015 --dependency=afterok:${jid1##* } --output=$alignment_dir/logFiles/locus_statistics.oe $scripts_dir/locus_statistics.sh $alignment_dir $alignment_dir/locus.stats
+sbatch --account=nib00015 --output=$alignment_dir/logFiles/locus_statistics.oe $scripts_dir/locus_statistics.sh $alignment_dir $alignment_dir/locus.stats
 
 ## Concatenate locus alignments
 nt=8
-jid2=$(sbatch --account=nib00015 --dependency=afterok:${jid1##* } --output=$alignment_dir/logFiles/concatenate.oe $scripts_dir/concatenate.sh $nt $alignment_dir $set_id)
+sbatch --account=nib00015 --output=$alignment_dir/logFiles/concatenate.oe $scripts_dir/concatenate.sh $nt $alignment_dir $set_id
 
 ## Calculate statistics for concatenated alignment (including per-taxon)
-sbatch --account=nib00015 --dependency=afterok:${jid2##* } --output=$alignment_dir/logFiles/concatenated_statistics.oe $scripts_dir/concatenated_statistics.sh $alignment_dir/$set_id.concatenated.nex
+sbatch --account=nib00015 --output=$alignment_dir/logFiles/concatenated_statistics.oe $scripts_dir/concatenated_statistics.sh $alignment_dir/$set_id.concatenated.nex
 
 #################################################################
 #### 1 MAXIMUM LIKELIHOOD INFERENCE ####
@@ -35,24 +35,18 @@ sbatch --account=nib00015 --dependency=afterok:${jid2##* } --output=$alignment_d
 mkdir -p $phyl_dir/ml
 
 ## Remove invariant sites (high memory consumption)
-jid3=$(sbatch --account=nib00015 --dependency=afterok:${jid2##* } --output=$phyl_dir_DIR/logFiles/remove_invariants.oe $scripts_dir/remove_invariants.sh $alignment_dir/$set_id.concatenated.phy $alignment_dir/$set_id.concatenated.noinv.phy)
+sbatch --account=nib00015 --output=$phyl_dir_DIR/logFiles/remove_invariants.oe $scripts_dir/remove_invariants.sh $alignment_dir/$set_id.concatenated.phy $alignment_dir/$set_id.concatenated.noinv.phy
 
 ## Run phylogenetic inference with ascertainment bias correction in RAxML-NG
 nt=80
 bootstrap=100 # Number of bootstrap replicates
 outgroup="Mmur_RMR44,Mmur_RMR45,Mmur_RMR49" # Outgroup individuals in alignment file
-sbatch --account=nib00015 --dependency=afterok:${jid3##* } --output=$phyl_dir/logFiles/raxml_asc.$set_id.oe $scripts_dir/raxml_asc.sh $nt $bootstrap $outgroup $alignment_dir/$set_id.concatenated.noinv.phy $phyl_dir/ml/$set_id.concatenated.noinv.tre
+sbatch --account=nib00015 --output=$phyl_dir/logFiles/raxml_asc.$set_id.oe $scripts_dir/raxml_asc.sh $nt $bootstrap $outgroup $alignment_dir/$set_id.concatenated.noinv.phy $phyl_dir/ml/$set_id.concatenated.noinv.tre
 
 #################################################################
 #### 2 QUARTET-BASED INFERENCE FOR INDIVIDUAL AND POPULATION ASSIGNMENT ####
 #################################################################
 mkdir -p $phyl_dir/quartet
-
-## Wait until alignment concatenation has been terminated (i.e., the following job has started)
-until [ -f $alignment_dir/logFiles/concatenated_statistics.oe ]
-do
-	sleep 20
-done
 
 ## Create locus partitions block file
 echo "BEGIN SETS;" > $phyl_dir/quartet/$set_id.locusPartitions.txt

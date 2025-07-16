@@ -26,15 +26,15 @@ nt=40
 mem=100
 no_inds=$(cat $ind_file | wc -l)
 suffix=auto.bam
-sbatch --array=1-$no_inds --job-name=gatk -c $nt --account=nib00015 --output=$PWORK/$set_id/gatk/logFiles/haplotype_caller.%A_%a.oe $scripts_dir/haplotype_caller.sh $nt $mem $reference $ind_file $bam_dir $gvcf_dir $suffix
+sbatch --array=1-$no_inds -c $nt --account=nib00015 --output=$PWORK/$set_id/gatk/logFiles/haplotype_caller.%A_%a.oe $scripts_dir/haplotype_caller.sh $nt $mem $reference $ind_file $bam_dir $gvcf_dir $suffix
 
 ## Joint genotyping per scaffold
 no_regions=$(cat $region_file | wc -l)
-sbatch --array=1-$no_regions--job-name=gatk --dependency=singleton -c $nt --account=nib00015 --output=$PWORK/$set_id/gatk/logFiles/joint_genotyping.%A_%a.oe $scripts_dir/joint_genotyping.sh $nt $reference $ind_file $region_file $gvcf_dir $db_dir $vcf_scaffold_dir $tmp_dir
+sbatch --array=1-$no_regions -c $nt --account=nib00015 --output=$PWORK/$set_id/gatk/logFiles/joint_genotyping.%A_%a.oe $scripts_dir/joint_genotyping.sh $nt $reference $ind_file $region_file $gvcf_dir $db_dir $vcf_scaffold_dir $tmp_dir
 
 ## Merge per-scaffold VCFs
 ls $vcf_scaffold_dir/*vcf.gz > $vcf_scaffold_dir/allScaffolds.vcflist
-sbatch --job-name=gatk --dependency=singleton --account=nib00015 --output=$PWORK/$set_id/gatk/logFiles/merge_vcfs.oe $scripts_dir/merge_vcfs.sh $vcf_scaffold_dir/allScaffolds.vcflist $PWORK/$set_id/gatk/allScaffolds.vcf.gz
+sbatch --account=nib00015 --output=$PWORK/$set_id/gatk/logFiles/merge_vcfs.oe $scripts_dir/merge_vcfs.sh $vcf_scaffold_dir/allScaffolds.vcflist $PWORK/$set_id/gatk/allScaffolds.vcf.gz
 
 
 

@@ -14,7 +14,7 @@ mkdir -p $coal_dir/logFiles
 #################################################################
 ## Reformat per-locus files
 mkdir -p $coal_dir/loci
-sbatch --wait --account=nib00015 --output=$coal_dir/logFiles/prepareLoci.oe $scripts_dir/prepareLoci.sh $locus_dir $coal_dir/loci
+sbatch --account=nib00015 --output=$coal_dir/logFiles/prepareLoci.oe $scripts_dir/prepareLoci.sh $locus_dir $coal_dir/loci
 
 ## Create sequence file containing all loci
 cat $coal_dir/loci/loci.count > $coal_dir/$set_id.seq_file.txt
@@ -146,14 +146,7 @@ done
 ## Average log files across runs
 for model in $models
 do
-	# Wait until processed logs are ready
-	until [[ $(ls $coal_dir/models/$model/cut/prep*mcmc.out | wc -l) == 4 ]]
-	do
-		sleep 5m
-	done
-	
-	# Average
-	sbatch --wait --acount=nib00015 --output=$coal_dir/logFiles/$model.average_mcmcs.oe $scripts_dir/average_mcmcs.sh $scripts_dir \
+	sbatch --acount=nib00015 --output=$coal_dir/logFiles/$model.average_mcmcs.oe $scripts_dir/average_mcmcs.sh $scripts_dir \
 		$coal_dir/models/$model/cut/prep.$model.run1.mcmc.out $coal_dir/models/$model/cut/prep.$model.run2.mcmc.out $coal_dir/models/$model/cut/prep.$model.run3.mcmc.out $coal_dir/models/$model/cut/prep.$model.run4.mcmc.out $coal_dir/models/$model/cut/prep.$model.average.mcmc.out
 done
 
