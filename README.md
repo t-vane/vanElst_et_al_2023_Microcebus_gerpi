@@ -18,7 +18,7 @@ Each directory contains a script from which the respective pipeline is executed,
 `./read_trimming` contains scripts to trim demultiplexed raw sequencing reads with [Trimmomatic v0.39](https://github.com/usadellab/Trimmomatic). 
 
 ### Reference mapping
-`./reference_mapping` contains scripts to align cleaned reads against the *Microcebus murinus* reference genome (Mmur 3.0; [Larsen et al. (2017), *BMC Biol.*](https://doi.org/10.1186/s12915-017-0439-6) with [BWA v0.7.17](https://github.com/lh3/bwa) and to filter BAM files with [SAMtools v1.11](http://www.htslib.org/).
+`./reference_mapping` contains scripts to align cleaned reads against the *Microcebus murinus* reference genome (Mmur 3.0; [Larsen et al. (2017), *BMC Biol.*](https://doi.org/10.1186/s12915-017-0439-6) with [BWA v0.7.17](https://github.com/lh3/bwa)) and to filter BAM files with [SAMtools v1.11](http://www.htslib.org/).
 
 ### Genotype calling
 `./genotype_calling` contains scripts to call genotypes with [GATK v4.1.9.0](https://gatk.broadinstitute.org/hc/en-us).
@@ -39,7 +39,7 @@ Each directory contains a script from which the respective pipeline is executed,
 `./population_structure` contains scripts for the following population structure analyses:
 - Principal component analysis with [PCAngsd v1.01](https://github.com/Rosemeis/pcangsd) from genotype likelihoods
 - Ancestry inference with [NGSadmix v32](http://www.popgen.dk/software/index.php/NgsAdmix) from genotype likelihoods
-- Testing for isolation-by-distance based on *F<sub>ST</sub>* values estimated with [realSFS](http://www.popgen.dk/angsd/index.php/RealSFS) from genotype likelihoods and on mean genetic distances between populations estimated with the R package ['vcfR' v1.12](https://github.com/knausb/vcfR) from genotype calls.
+- Testing for isolation-by-distance based on *F<sub>ST</sub>* values estimated with [realSFS](http://www.popgen.dk/angsd/index.php/RealSFS) from genotype likelihoods and on mean genetic distances between populations estimated with the R package ['vcfR' v1.12](https://github.com/knausb/vcfR) from genotype calls
 - Estimation of effective mirgration surfaces with [EEMS](https://github.com/dipetkov/eems) from genotype calls
 
 ### Coalescent modeling
